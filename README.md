@@ -1,8 +1,10 @@
 # BLERP: BLE Re-Pairing Attacks and Defenses
 
-The artifact contains everything that was implemented in the BLERP paper: the toolkit for the attacks, the fixes, and the ProVerif model.
+This repository contains everything that was developed for the BLERP paper: the toolkit for the attacks, the fixes, and the ProVerif model.
 
-[!NOTE] add ref to the paper once out
+Everything  is also available at [doi.org/10.5281/zenodo.17671927](https://doi.org/10.5281/zenodo.17671927)
+
+The NDSS 26' paper is available at  
 
 ## Requirements
 
