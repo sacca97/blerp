@@ -1,0 +1,11 @@
+pkg.name: targets/nordic_pca10059_boot
+pkg.type: target
+pkg.description: 
+pkg.author: 
+pkg.homepage: 
+pkg.cflags:
+    - "-Wno-error"
+    - "-Wno-maybe-uninitialized"
+
+pkg.deps:
+    - "@apache-mynewt-core/hw/usb/tinyusb/msc_fat_view"

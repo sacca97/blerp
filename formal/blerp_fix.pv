@@ -1,0 +1,104 @@
+type key.
+type pubkey.
+type privkey.
+type features.
+
+fun pub(privkey): pubkey.
+
+fun hash(bitstring): bitstring.
+fun kdf(key, bitstring): key.
+fun enc(bitstring, key): bitstring.
+reduc forall m:bitstring, k:key; dec(enc(m, k), k) = m.
+
+fun ecdh(privkey, pubkey): key.
+equation forall a,b: privkey; ecdh(a, pub(b)) = ecdh(b, pub(a)).
+
+free c: channel.
+
+free h_initial: bitstring.
+
+free start_enc_req: bitstring.
+free start_enc_rsp_A: bitstring.
+free start_enc_rsp_B: bitstring.
+
+free features_A_const: features.
+free features_B_const: features.
+
+event end_A(key).
+event end_B(key).
+
+query k:key; inj-event(end_B(k)) ==> inj-event(end_A(k)).
+
+query k:key; event(end_A(k)) && event(end_B(k)).
+
+let processA(pk: key) =
+    new priv_a: privkey;
+    let pub_a = pub(priv_a) in
+
+    out(c, features_A_const);
+    in(c, features_b: features);
+
+    let h1 = hash((h_initial, features_A_const)) in
+    let h2 = hash((h1, features_b)) in
+
+    out(c, pub_a);
+
+    let h3 = hash((h2, pub_a)) in
+    in(c, pub_b: pubkey);
+    let h4 = hash((h3, pub_b)) in
+    let ss = ecdh(priv_a, pub_b) in
+    let pk_new = kdf(pk, (ss, h4)) in
+
+    new skd_a: bitstring;
+    new iv_a: bitstring;
+    out(c, (skd_a, iv_a));
+    in(c, (skd_b: bitstring, iv_b: bitstring));
+    in(c, start_enc_req_msg: bitstring);
+    if start_enc_req_msg = start_enc_req then
+        let session_key = kdf(pk_new, (skd_a, skd_b)) in
+        in(c, enc_msg_B: bitstring);
+        let dec_msg_B = dec(enc_msg_B, session_key) in
+        if dec_msg_B = start_enc_rsp_B then
+            let enc_msg_A = enc(start_enc_rsp_A, session_key) in
+            event end_A(pk_new);
+            out(c, enc_msg_A).
+
+let processB(pk: key) =
+    new priv_b: privkey;
+    let pub_b = pub(priv_b) in
+
+    in(c, features_a: features);
+
+    out(c, features_B_const);
+
+    let h1 = hash((h_initial, features_a)) in
+    let h2 = hash((h1, features_B_const)) in
+
+    in(c, pub_a: pubkey);
+    let h3 = hash((h2, pub_a)) in
+
+    out(c, pub_b);
+
+    let h4 = hash((h3, pub_b)) in
+    let ss = ecdh(priv_b, pub_a) in
+    let pk_new = kdf(pk, (ss, h4)) in
+
+    in(c, (skd_a: bitstring, iv_a: bitstring));
+    new skd_b: bitstring;
+    new iv_b: bitstring;
+    out(c, (skd_b, iv_b));
+    out(c, start_enc_req);
+    let session_key = kdf(pk_new, (skd_a, skd_b)) in
+    let enc_msg_B = enc(start_enc_rsp_B, session_key) in
+    out(c, enc_msg_B);
+    in(c, enc_msg_A: bitstring);
+    let dec_msg_A = dec(enc_msg_A, session_key) in
+    if dec_msg_A = start_enc_rsp_A then
+        event end_B(pk_new).
+
+process
+    new pk: key;
+    (
+        !processA(pk) |
+        !processB(pk)
+    )

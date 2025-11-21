@@ -1,0 +1,3 @@
+target.app: "@mcuboot/boot/mynewt"
+target.bsp: "@apache-mynewt-core/hw/bsp/nordic_pca10059"
+target.build_profile: optimized

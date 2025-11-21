@@ -1,0 +1,18 @@
+pkg.name: targets/nrf52_blecent
+pkg.type: target
+pkg.description:
+pkg.author:
+pkg.homepage:
+
+pkg.cflags:
+  - "-Wno-error"
+  - "-nostdlib"
+  - "-DMYNEWT_TRNG"
+  - "-DINITIATOR_ROLE"
+  - "-Wno-unused-but-set-variable"
+  - "-Wno-stringop-overread"
+  - "-Wno-unused-const-variable"
+  # - "-Wno-return-type"
+  # - "-Wno-uninitialized"
+  # - "-Wno-unused-function"
+  # - "-DTEST_TRNG"

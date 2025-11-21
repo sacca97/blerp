@@ -1,0 +1,12 @@
+pkg.name: targets/nrf52_boot
+pkg.type: target
+pkg.description: 
+pkg.author: 
+pkg.homepage: 
+
+pkg.cflags:
+    - "-Wno-error"
+    - "-Wno-maybe-uninitialized"
+    - "-Wno-unused-but-set-variable"
+    - "-Wno-return-type"
+    # - "-nostdlib"
