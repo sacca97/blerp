@@ -1,3 +1,4 @@
+import argparse
 import asyncio
 import logging
 import sys
@@ -189,15 +190,33 @@ async def main(mitm: Mitm):
 
 
 if __name__ == "__main__":
-    CENTRAL_ADDR = "50:ED:3C:00:BC:BA"
-    # 0 for public, 1 for random
-    CENTRAL_ADDR_TYPE = 0
+    parser = argparse.ArgumentParser(description="BLERP MITM script.")
+    parser.add_argument(
+        "--central-addr",
+        type=str,
+        required=True,
+        help="Central address, e.g., AA:BB:CC:DD:EE:FF",
+    )
+    parser.add_argument(
+        "--central-addr-type",
+        type=str,
+        default="public",
+        choices=["public", "random"],
+        help="Central address type (public or random)",
+    )
+    parser.add_argument(
+        "--peripheral-name",
+        type=str,
+        required=True,
+        help="Peripheral device name",
+    )
+    args = parser.parse_args()
 
-    PERIPHERAL_NAME = "G603"
+    addr_type_map = {"public": 0, "random": 1}
 
     mitm = Mitm(
-        central_addr=CENTRAL_ADDR,
-        central_addr_type=CENTRAL_ADDR_TYPE,
+        central_addr=args.central_addr,
+        central_addr_type=addr_type_map[args.central_addr_type],
     )
 
     # Enable or disable packets passthru
@@ -208,7 +227,7 @@ if __name__ == "__main__":
     # Connect to Peripheral to stop its advertising, do not pair yet
     # Peripheral address and address type are inferred from advertisement data
     prph_addr, prph_addr_type, adv_data = mitm.central.start_targeted_scan(
-        bname=PERIPHERAL_NAME, get_data=True
+        bname=args.peripheral_name, get_data=True
     )
 
     mitm.peripheral.addr = prph_addr
