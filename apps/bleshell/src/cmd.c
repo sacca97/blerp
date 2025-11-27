@@ -5236,7 +5236,7 @@ static const struct shell_cmd btshell_commands[] = {
 #endif
     },
     {
-        .sc_cmd = "spoof-advertise-data",
+        .sc_cmd = "spoof-adv-data",
         .sc_cmd_func = cmd_set_spoofed_adv_data,
 #if MYNEWT_VAL(SHELL_CMD_HELP)
         .help = &set_spoofed_adv_data_help,
