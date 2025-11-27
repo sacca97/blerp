@@ -189,10 +189,15 @@ async def main(mitm: Mitm):
 
 
 if __name__ == "__main__":
+    CENTRAL_ADDR = "50:ED:3C:00:BC:BA"
+    # 0 for public, 1 for random
+    CENTRAL_ADDR_TYPE = 0
+
+    PERIPHERAL_NAME = "G603"
+
     mitm = Mitm(
-        # central_addr="F8:1A:2B:3F:27:2F",
-        central_addr="50:ED:3C:00:BC:BA",
-        central_addr_type=0,
+        central_addr=CENTRAL_ADDR,
+        central_addr_type=CENTRAL_ADDR_TYPE,
     )
 
     # Enable or disable packets passthru
@@ -200,10 +205,10 @@ if __name__ == "__main__":
 
     mitm.central.initialize()
 
-    # Connect to legitimate Peripheral to stop its advertising
-    # do not pair yet
+    # Connect to Peripheral to stop its advertising, do not pair yet
+    # Peripheral address and address type are inferred from advertisement data
     prph_addr, prph_addr_type, adv_data = mitm.central.start_targeted_scan(
-        bname="G603", get_data=True
+        bname=PERIPHERAL_NAME, get_data=True
     )
 
     mitm.peripheral.addr = prph_addr
