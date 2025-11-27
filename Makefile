@@ -2,6 +2,7 @@ model?=10056
 
 ceid?=0000000000 #board 1
 peid?=0000000000 #board 2
+devid?=0000000000 #generic
 
 all: central peripheral
 
@@ -32,7 +33,7 @@ build-hid:
 	newt create-image nrf52_blehid 1.0.0
 
 load-hid:
-	newt load nrf52_blehid --extrajtagcmd "-select usb=$(peripheralid)"
+	newt load nrf52_blehid --extrajtagcmd "-select usb=$(peid)"
 
 hid: set-prph-target-10056 build-hid load-hid
 
@@ -43,7 +44,7 @@ build-prph:
 	newt create-image nrf52_bleprph 1.0.0
 
 load-prph:
-	newt load nrf52_bleprph --extrajtagcmd "-select usb=$(peripheralid)"
+	newt load nrf52_bleprph --extrajtagcmd "-select usb=$(peid)"
 
 peripheral: set-prph-target-10056 build-prph load-prph
 
@@ -59,7 +60,7 @@ build-cent:
 	newt create-image nrf52_blecent 1.0.0
 
 load-cent:
-	newt load nrf52_blecent --extrajtagcmd "-select usb=$(centralid)"
+	newt load nrf52_blecent --extrajtagcmd "-select usb=$(ceid)"
 
 central: set-cent-target-10056 build-cent load-cent
 
@@ -71,14 +72,14 @@ hci-devboard:
 	newt clean nrf52_hci
 	newt build nrf52_hci
 	newt create-image nrf52_hci 1.0.0
-	newt load nrf52_hci --extrajtagcmd "-select usb=$(peripheralid)"
+	newt load nrf52_hci --extrajtagcmd "-select usb=$(peid)"
 
 hci-mitm:
 	newt clean nrf52_hci
 	newt build nrf52_hci
 	newt create-image nrf52_hci 1.0.0
-	newt load nrf52_hci --extrajtagcmd "-select usb=$(peripheralid)"
-	newt load nrf52_hci --extrajtagcmd "-select usb=$(centralid)"
+	newt load nrf52_hci --extrajtagcmd "-select usb=$(peid)"
+	newt load nrf52_hci --extrajtagcmd "-select usb=$(ceid)"
 
 
 
@@ -88,14 +89,14 @@ boot-10056:
 	@echo "target.bsp: \""@apache-mynewt-core/hw/bsp/nordic_pca10056"\"" >> targets/nrf52_boot/target.yml
 	@echo "target.build_profile: optimized" >> targets/nrf52_boot/target.yml
 	newt build nrf52_boot
-	newt load nrf52_boot
+	newt load nrf52_boot --extrajtagcmd "-select usb=$(devid)"
 
 boot10040:
 	@echo "target.app: \""@mcuboot/boot/mynewt"\"" > targets/nrf52_boot/target.yml
 	@echo "target.bsp: \""@apache-mynewt-core/hw/bsp/nordic_pca10040"\"" >> targets/nrf52_boot/target.yml
 	@echo "target.build_profile: optimized" >> targets/nrf52_boot/target.yml
 	newt build nrf52_boot
-	newt load nrf52_boot --extrajtagcmd "-select usb=$(peripheralid)"
+	newt load nrf52_boot --extrajtagcmd "-select usb=$(devid)"
 
 
 # NRF53
@@ -139,4 +140,4 @@ clean:
 	@rm -rf repos/* repos/.configs repos/.gdb_out
 
 erase:
-	JLinkExe -if SWD -speed 4000 -commanderscript erase.jlink
+	JLinkExe -SelectEmuBySN $(devid)  -if SWD -speed 4000 -commanderscript erase.jlink

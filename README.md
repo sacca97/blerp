@@ -32,7 +32,7 @@ cd blerp_poc
 2. Connect the board via USB and install the OS and _bleshell_ app (`ceid` is the actual S/N of the board)
 
 ```bash
-make boot-10056 && make central ceid=0123456789
+make boot-10056 devid=0123456789 && make central ceid=0123456789
 ```
 
 3. Connect to the board using the serial tool, in our case
@@ -97,37 +97,70 @@ connect addr=MAC_Address addr_type=random
 
 ## Double-channel MitM
 
-This attack maps to the double-channel MitM attack described in Section IV.D of the paper. Similar to the previous attacks, the two victim devices must be paired. Once this is done, to set up the MitM attack, the user shall:
+This attack maps to the double-channel MitM attack described in Section IV.D of the paper. Similar to the previous attacks, the two victim devices must be paired. Once this is done, connect the two nRF52s to your machine and:
 
-1.  Connect two nRF52s to the laptop.
-2.  From inside the _blerpae_ folder run `make erase && make boot-10056` on both boards, then run `make hci-mitm` once. This will perform a clean install of the new firmware on the boards.
-3.  Modify `python-host/mitm.py` and insert the correct name (Peripheral) and MAC address (Central) in the main block, then run `sudo .venv/bin/python python-host/mitm.py`.
+1. Connect the two board to your machine and perform a clean install
 
-Now the user must disconnect the two legitimate devices by turning off Bluetooth on the Central. Once this is done, the attack will proceed as follows:
+```bash
+# Run twice, once per board
+make erase devid=0123456789 && make boot-10056 devid=0123456789
+
+# Run once, specify the boards S/N
+make hci-mitm ceid=0123456789 peid=9876543210
+```
+
+2.  Modify `python-host/mitm.py` and replace the variables in the main block with the ones of the victim devices
+
+```python
+CENTRAL_ADDR = "XX:XX:XX:XX:XX:XX"
+
+CENTRAL_ADDR_TYPE = 0 # 0 for public, 1 for random
+
+PERIPHERAL_NAME = "Peripheral Name"
+```
+
+3. Launch the MitM script (requires root)
+
+```bash
+sudo .venv/bin/python python-host/mitm.py
+```
+
+Now disconnect the two legitimate devices by turning off Bluetooth on the Central. Once this is done, the attack will proceed as follows:
 
 1.  The malicious Peripheral copies the advertisement data from the legitimate Peripheral.
 2.  The malicious Central connects to the legitimate Peripheral, blocking its advertising.
 3.  The malicious Peripheral begins advertising using the spoofed data.
-4.  The user turns the legitimate Central's Bluetooth on again.
-5.  The legitimate Central connects to the attacker's Peripheral, starting the MitM attack. The legitimate Central may be prompted with a Yes/No dialog box to confirm the connection.
+4.  Manually turn the legitimate Central's Bluetooth on. 👤
+5.  The legitimate Central connects to the malicious Peripheral, starting the attack. The legitimate Central may be prompted with a Yes/No dialog box to confirm the connection.
 
 ## Testing Hardened Re-pairing
 
-To test the hardened re-pairing the user must first install a patched NimBLE stack on one of the nRF52s and use the other one as the attacker. To set up the victim devices, inside the _blerpae_ folder run `apply_fixes_patch.sh` and then install the fixed stack using `make central` (if testing Peripheral impersonation) or `make peripheral` (if testing Central impersonation). The tests follow the same steps outlined previously for the attacks, including the securtiy level downgrade.
+To test the hardened re-pairing, install the patched firmware on one of the nRF52 and use the other one as the attacker. 
+
+
+```bash
+./apply_fixes_patch.sh
+make erase devid=0123456789
+make central ceid=0123456789
+``` 
+
+The tests follow the same steps outlined previously for the attacks, including the securtiy level downgrade.
 
 
 ## Testing Authenticated Re-pairing
 
-The authenticated re-pairing protocol can be verified using ProVerif. For download and installation please refer to the [official website](https://bblanche.gitlabpages.inria.fr/proverif/). Once installed, from the main _blerp_ repository run:
+The authenticated re-pairing protocol can be verified using ProVerif. For download and installation please refer to the [official website](https://bblanche.gitlabpages.inria.fr/proverif/). Once installed, run:
 
 ```sh
 proverif formal/blerp_fixes.pv
 ```
 
-The model contains two queries: the first one proves integrity and authentication of the re-pairing Pairing Key and it should evaluate to _true_, while the second one is a simple sanity check to show that the protocol ends correctly and it should evaluate to _false_. The ProVerif verification summary should reflect the one below:
+The model contains two queries, one to verify integrity and authentication of the re-pairing and another one to perform a sanity check to show that the protocol ends correctly. The ProVerif verification summary should reflect the one below:
 
-```
+```sh
+# Injective correspondence
 Query inj-event(end_B(k)) ==> inj-event(end_A(k)) is true.
 
+# Sanity check
 Query not (event(end_A(k)) && event(end_B(k))) is false.
 ```
