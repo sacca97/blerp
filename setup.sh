@@ -12,8 +12,8 @@ cp -r targets/nrf52_hci blerp_poc/targets/nrf52_hci
 cp -r patches blerp_poc/patches
 cp -r python-host blerp_poc/python-host
 
-cp apply_fixes_patch.sh blerp_poc/fixes_patch.sh
-cp apply_attacks_patch.sh blerp_poc/attacks_patch.sh
+cp apply_fixes_patch.sh blerp_poc/apply_fixes_patch.sh
+cp apply_attacks_patch.sh blerp_poc/apply_attacks_patch.sh
 cp Makefile blerp_poc/Makefile
 
 cp erase.jlink blerp_poc/erase.jlink
