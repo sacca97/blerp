@@ -1,10 +1,9 @@
 model?=10056
 
-ceid?=0000000000 #board 1
-peid?=0000000000 #board 2
-devid?=0000000000 #generic
-
-all: central peripheral
+idc?=0000000000 #board 1
+idp?=0000000000 #board 2
+id?=0000000000 #generic
+all: bleshell peripheral
 
 
 update:
@@ -60,26 +59,26 @@ build-cent:
 	newt create-image nrf52_blecent 1.0.0
 
 load-cent:
-	newt load nrf52_blecent --extrajtagcmd "-select usb=$(ceid)"
+	newt load nrf52_blecent --extrajtagcmd "-select usb=$(id)"
 
-central: set-cent-target-10056 build-cent load-cent
+bleshell: set-cent-target-10056 build-cent load-cent
 
-all: central peripheral
+all: bleshell peripheral
 
 # HCI DevBoard
 
-hci-devboard:
+hci-dev:
 	newt clean nrf52_hci
 	newt build nrf52_hci
 	newt create-image nrf52_hci 1.0.0
-	newt load nrf52_hci --extrajtagcmd "-select usb=$(peid)"
+	newt load nrf52_hci --extrajtagcmd "-select usb=$(id)"
 
 hci-mitm:
 	newt clean nrf52_hci
 	newt build nrf52_hci
 	newt create-image nrf52_hci 1.0.0
-	newt load nrf52_hci --extrajtagcmd "-select usb=$(peid)"
-	newt load nrf52_hci --extrajtagcmd "-select usb=$(ceid)"
+	newt load nrf52_hci --extrajtagcmd "-select usb=$(idc)"
+	newt load nrf52_hci --extrajtagcmd "-select usb=$(idp)"
 
 
 
@@ -89,14 +88,14 @@ boot-10056:
 	@echo "target.bsp: \""@apache-mynewt-core/hw/bsp/nordic_pca10056"\"" >> targets/nrf52_boot/target.yml
 	@echo "target.build_profile: optimized" >> targets/nrf52_boot/target.yml
 	newt build nrf52_boot
-	newt load nrf52_boot --extrajtagcmd "-select usb=$(devid)"
+	newt load nrf52_boot --extrajtagcmd "-select usb=$(id)"
 
 boot10040:
 	@echo "target.app: \""@mcuboot/boot/mynewt"\"" > targets/nrf52_boot/target.yml
 	@echo "target.bsp: \""@apache-mynewt-core/hw/bsp/nordic_pca10040"\"" >> targets/nrf52_boot/target.yml
 	@echo "target.build_profile: optimized" >> targets/nrf52_boot/target.yml
 	newt build nrf52_boot
-	newt load nrf52_boot --extrajtagcmd "-select usb=$(devid)"
+	newt load nrf52_boot --extrajtagcmd "-select usb=$(id)"
 
 
 # NRF53
@@ -140,4 +139,4 @@ clean:
 	@rm -rf repos/* repos/.configs repos/.gdb_out
 
 erase:
-	JLinkExe -SelectEmuBySN $(devid)  -if SWD -speed 4000 -commanderscript erase.jlink
+	JLinkExe -SelectEmuBySN $(id)  -if SWD -speed 4000 -commanderscript erase.jlink
