@@ -9,6 +9,7 @@ cp -r apps/bleshell blerp_poc/apps/bleshell
 cp -r targets/nrf52_boot blerp_poc/targets/nrf52_boot
 cp -r targets/nrf52_blecent blerp_poc/targets/nrf52_blecent
 cp -r targets/nrf52_hci blerp_poc/targets/nrf52_hci
+cp -r targets/nrf52_legitimate blerp_poc/targets/nrf52_legitimate
 cp -r patches blerp_poc/patches
 cp -r python-host blerp_poc/python-host
 
