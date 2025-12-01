@@ -32,7 +32,6 @@ The artifact will also be available at [doi.org/10.5281/zenodo.17671927](https:/
 git clone https://github.com/sacca97/blerp
 cd blerp
 ./setup.sh
-cd blerp_poc
 ./apply_attacks_patch.sh
 ```
 

@@ -83,15 +83,6 @@ hci-dev:
 	newt create-image nrf52_hci 1.0.0
 	newt load nrf52_hci --extrajtagcmd "-select usb=$(id)"
 
-hci-mitm:
-	newt clean nrf52_hci
-	newt build nrf52_hci
-	newt create-image nrf52_hci 1.0.0
-	newt load nrf52_hci --extrajtagcmd "-select usb=$(idc)"
-	newt load nrf52_hci --extrajtagcmd "-select usb=$(idp)"
-
-
-
 #BOOT
 boot-10056:
 	@echo "target.app: \""@mcuboot/boot/mynewt"\"" > targets/nrf52_boot/target.yml
