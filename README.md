@@ -166,7 +166,7 @@ Apply the patch, re-flash the firmware on one of the nRF52, and repeat the attac
 ```bash
 ./apply_fixes_patch.sh
 make erase id=0123456789
-make boot-10056 id=0123456789 && make bleshell id=0123456789
+make boot-10056 id=0123456789 && make legitimate id=0123456789
 ``` 
 
 Expected outputs: disconnection and re-pairing failure for both attacks.

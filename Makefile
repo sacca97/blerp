@@ -65,6 +65,16 @@ bleshell: set-cent-target-10056 build-cent load-cent
 
 all: bleshell peripheral
 
+build-legitimate:
+	newt clean nrf52_legitimate
+	newt build nrf52_legitimate
+	newt create-image nrf52_legitimate 1.0.0
+
+load-legitimate:
+	newt load nrf52_legitimate --extrajtagcmd "-select usb=$(id)"
+
+legitimate: build-legitimate load-legitimate
+
 # HCI DevBoard
 
 hci-dev:
