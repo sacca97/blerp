@@ -8,10 +8,10 @@ from scapy.layers.bluetooth4LE import *
 def send_cmd(sock: BluetoothUserSocket, cmd: Packet):
     pkt = HCI_Hdr() / HCI_Command_Hdr() / cmd
     # opcode = pkt.opcode
-    # pkt.show()
 
     sock.send(pkt)
     while True:
+        r = sock.recv()
         if r.type == 0x04 and r.code in (0xE, 0x0F):  # and r.opcode == opcode:
             if r.status != 0:
                 logging.warning(f"Command failed {cmd}")
