@@ -3451,20 +3451,19 @@ static int cmd_security_set_data(int argc, char **argv)
     console_printf("invalid 'sc' parameter\n");
     return rc;
   }
-
+#if MYNEWT_VAL(ENABLE_BLERP_CMDS)
   tmp = parse_arg_uint8_bounds_dflt("keysize", 1, 16, 16, &rc);
   if (rc == 0)
   {
     good++;
-#if MYNEWT_VAL(ENABLE_BLERP_CMDS)
     ble_hs_cfg.sm_max_enc_key_size = tmp;
-#endif
   }
   else if (rc != ENOENT)
   {
     console_printf("invalid 'keysize' parameter\n");
     return rc;
   }
+#endif
 
   if (!good)
   {
