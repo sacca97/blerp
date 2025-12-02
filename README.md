@@ -166,7 +166,7 @@ make erase id=XXXXXXXXXX
 make boot-10056 id=XXXXXXXXXX
 make hci-dev id=XXXXXXXXXX
 ```
-2. Run the Python script with root privileges. Find the HCI device IDs  `--dev-ids` using `sudo btmgmt info` or `hcitool dev` and looking for addresses `00:00:00:00:00:00`.
+2. Run the Python script with root privileges. Find the two HCI device IDs  `--dev-ids` using `sudo btmgmt info` or `hcitool dev` and looking for addresses `00:00:00:00:00:00`.
 ```sh
 sudo .venv/bin/python python-host/mitm.py --central-addr XX:XX:XX:XX:XX:XX --central-addr-type public --peripheral-name "Peripheral Name" --dev--ids X,Y
 ```
