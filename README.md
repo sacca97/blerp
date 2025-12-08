@@ -1,6 +1,6 @@
 # BLE Re-Pairing Attacks PoC
 
-This repository contains the attacks PoCs as described in the paper [BLERP: BLE Re-Pairing Attacks and Defenses](https://github.com/sacca97/blerp/blob/main/paper.pdf) accepted at NDSS 26'.
+This repository contains the attacks PoCs as described in the paper [BLERP: BLE Re-Pairing Attacks and Defenses](https://github.com/sacca97/blerp/blob/main/blerp-paper.pdf) accepted at NDSS 26'.
 
 The artifact will also be available at [doi.org/10.5281/zenodo.17671927](https://doi.org/10.5281/zenodo.17671927)
 
