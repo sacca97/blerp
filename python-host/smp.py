@@ -19,7 +19,7 @@ class SecurityManager:
 
     def __init__(self, role):
         self.mitm = 0
-        self.sc = 0
+        self.sc = 1
         self.bond = 1
         self.keypress = 0
         self.ct2 = 1
