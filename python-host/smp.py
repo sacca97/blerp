@@ -133,9 +133,7 @@ class SecurityManager:
         else:
             logging.debug(f"Unknown packet {pkt.summary()}")
 
-    def on_pairing_request(
-        self, sock: BluetoothSocket, handle: int, pkt: Packet
-    ):
+    def on_pairing_request(self, sock: BluetoothSocket, handle: int, pkt: Packet):
         if self.role != BLE_ROLE_PERIPHERAL:
             return
 
@@ -161,7 +159,7 @@ class SecurityManager:
         self.pres = pkt.getlayer(SM_Hdr)
 
         (bond, mitm, sc, keypress) = decode_authreq(pkt.authentication)
-        assert self.sc == sc
+        # assert self.sc == sc
         # If remote is LSC, we adapt
         if sc == 0:
             self.sc = 0
@@ -235,7 +233,6 @@ class SecurityManager:
     def on_pairing_confirm(self, sock: BluetoothSocket, handle: int, pkt: Packet):
 
         if self.sc and self.peer_public_key_x == bytes(32):
-            logging.error("Received Confirm in SC mode without peer public key - possible downgrade attack")
             self.send(sock, handle, SM_Failed(reason=0x05))  # Pairing Not Supported
             return
 

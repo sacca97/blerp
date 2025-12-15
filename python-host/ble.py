@@ -75,7 +75,7 @@ class Device:
                     status = getattr(pkt, "status", 0)
                     return pkt if status == 0 else None
 
-    def initialize(self, addr=None, addr_type=None):
+    def initialize(self, addr=None, addr_type=None, reject_enc_req: int = 0):
         # TODO: Check get_socket
         if not self.sock:
             self.sock = get_socket(self.id)
@@ -92,7 +92,7 @@ class Device:
         self.set_address(self.addr, self.addr_type)
 
         # Enable blerp encreq rejection (TODO: make it optional)
-        self.send_hci_cmd(HCI_Cmd_LE_Custom_Command(opcode=1))
+        self.send_hci_cmd(HCI_Cmd_LE_Custom_Command(opcode=reject_enc_req))
 
         if self.use_legacy_adv:
             self.send_hci_cmd(
@@ -150,7 +150,7 @@ class Device:
                     enable=1, sets=[HCI_Ext_Adv_Set(handle=1)]
                 ),
             )
-            logging.info("Peripheral: Advertising started")
+            logging.info(f"Peripheral: Advertising started with address {self.addr}")
             pkt = self.sock.wait_event(HCI_LE_Meta_Enhanced_Connection_Complete)
             if pkt is not None:
                 self.handle = pkt.handle
@@ -512,13 +512,14 @@ if __name__ == "__main__":
                 addr = args.addr
                 addr_type = args.addr_type
 
+            dev.initialize(addr, addr_type)
+
             if args.impersonate and args.target:
                 addr, addr_type, adv_data = dev.start_targeted_scan(
                     target=args.target, get_data=True
                 )
+                dev.initialize(addr, addr_type)
 
-
-            dev.initialize(addr, addr_type)
             dev.stop_advertising()
 
             # dev.set_address(addr, addr_type)

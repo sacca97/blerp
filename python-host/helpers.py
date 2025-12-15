@@ -11,28 +11,14 @@ from scapy.fields import *
 from scapy.layers.bluetooth import *
 from scapy.packet import *
 
-mac_regex = r'^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$'
+mac_regex = r"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$"
+
 
 def is_valid_mac(s: str):
 
     if re.fullmatch(mac_regex, s):
         return True
     return False
-
-# class LE3BytesField(Field):
-#     """Little-endian 3-byte (24-bit) field for BLE extended advertising intervals."""
-
-#     def __init__(self, name, default):
-#         Field.__init__(self, name, default, "<I")  # Use int for internal repr
-
-#     def addfield(self, pkt, s, val):
-#         # Pack as little-endian, take only firhttps://github.com/secdev/scapy.gitst 3 bytes
-#         return s + struct.pack("<I", val)[:3]
-
-#     def getfield(self, pkt, s):
-#         # Read 3 bytes, pad to 4 bytes for unpacking
-#         return s[3:], struct.unpack("<I", s[:3] + b"\x00")[0]
-#
 
 
 class BluetoothSocket(BluetoothUserSocket):
@@ -491,7 +477,7 @@ def sm_send(sock: BluetoothSocket, handle: int, pkt):
 
 
 def l2cap_fragment_reassemble(
-    frag_buf: bytes, expected_len: int, pkt: Packet
+    frag_buf: bytes, frag_tot_size: int, pkt: Packet
 ) -> Tuple[bytes, int, Packet]:
     # Ignore non-ACL data (Events, Commands)
     if pkt.type != 2:
@@ -502,7 +488,6 @@ def l2cap_fragment_reassemble(
     pb_flag = acl_hdr.PB
 
     # Start Fragment (PB=0 or PB=2)
-    # 0=Start (Non-flushable/LE), 2=Start (Flushable/Classic)
     if pb_flag in [0, 2]:
         if L2CAP_Hdr not in pkt:
             # Should not happen for a valid Start fragment
@@ -515,7 +500,7 @@ def l2cap_fragment_reassemble(
         if acl_len >= l2cap_len + 4:
             return b"", 0, pkt
 
-        return raw(acl_hdr.payload), l2cap_len, None
+        return raw(pkt), l2cap_len, None
 
     # Continuing Fragment
     elif pb_flag == 1:
@@ -524,20 +509,19 @@ def l2cap_fragment_reassemble(
             return b"", 0, None
 
         # Append the new payload (raw bytes of ACL payload) to buffer
-        new_payload = raw(acl_hdr.payload)
-        frag_buf += new_payload
+        prev = HCI_Hdr(frag_buf)
+        frag_buf += raw(acl_hdr.payload)
 
         # Check if complete
-        if len(frag_buf) >= expected_len + 4:
-            reassembled_pkt = L2CAP_Hdr(frag_buf)
-
-            return b"", 0, reassembled_pkt
+        if len(raw(prev[L2CAP_Hdr:][1:])) + len(raw(acl_hdr.payload)) == frag_tot_size:
+            return b"", 0, HCI_Hdr(frag_buf)
 
         # Still not complete
-        return frag_buf, expected_len, None
+        return frag_buf, frag_tot_size, None
 
     # Unknown PB flag
     return b"", 0, pkt
+
 
 def decode_authreq(auth_value):
     bond = (auth_value & 0b00001) >> 0
@@ -545,6 +529,7 @@ def decode_authreq(auth_value):
     sc = (auth_value & 0b01000) >> 3
     keypress = (auth_value & 0b10000) >> 4
     return bond, mitm, sc, keypress
+
 
 def find_device_by_name(name: str, pkt) -> bool:
     if len(pkt.data) > 0:

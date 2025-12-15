@@ -142,7 +142,7 @@ if __name__ == "__main__":
         target=args.peripheral_name, get_data=True
     )
 
-    mitm.peripheral.initialize(prph_addr, prph_addr_type)
+    mitm.peripheral.initialize(prph_addr, prph_addr_type, 1)
     mitm.peripheral.set_adv_data(adv_data)
 
     mitm.peripheral.forwarding = True
