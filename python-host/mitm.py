@@ -2,7 +2,7 @@ import argparse
 import asyncio
 import logging
 import sys
-import time
+import signal
 
 from ble import Device
 from constants import (
@@ -94,7 +94,15 @@ async def main(mitm: Mitm):
     return peripheral_task, central_task
 
 
+def signal_handler(sig, frame):
+    sys.stdout.flush()
+    logging.info("Exiting...")
+    sys.exit(0)
+
+
 if __name__ == "__main__":
+    signal.signal(signal.SIGINT, signal_handler)
+
     parser = argparse.ArgumentParser(description="BLERP MITM script.")
     parser.add_argument(
         "--central-addr",

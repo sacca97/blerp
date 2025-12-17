@@ -4,7 +4,7 @@ import logging
 import signal
 import sys
 
-from att import ATTManager
+from att import ATTManager, HIDProfile
 from constants import *
 
 # from hci import wait_event
@@ -35,12 +35,14 @@ class Device:
         role: int,
         addr: str = None,
         addr_type: int = None,
+        hid_profile: HIDProfile = None,
     ):
         self.id: int = id
         self.role: int = role
         self.handle: int = 0
         self.sm: SecurityManager = SecurityManager(role)
-        self.att = ATTManager()
+        self.hid_profile: HIDProfile = hid_profile
+        self.att = ATTManager(device=self, profile=hid_profile) if hid_profile else ATTManager(device=self)
         self.forwarding: bool = False
         self.sock: BluetoothSocket = get_socket(id)
         self.mtu: int = 23  # TODO update this dinamically
@@ -178,15 +180,26 @@ class Device:
             pass
 
     def set_adv_data(self, adv_data=None):
-        # If no data is passed, copy a generic mouse
+        # If no data is passed, use profile-specific defaults
         if adv_data is None:
-            appearance = 962
-            service = 0x1812
+            # Set appearance and name based on HID profile
+            if self.hid_profile == HIDProfile.KEYBOARD:
+                appearance = 961  # Keyboard appearance
+                device_name = "BLE Keyboard"
+            elif self.hid_profile == HIDProfile.MOUSE:
+                appearance = 962  # Mouse appearance
+                device_name = "BLE Mouse"
+            else:
+                # Default to mouse if no profile specified
+                appearance = 962
+                device_name = "BLE HID Device"
+
+            service = 0x1812  # HID Service
             adv_data = [
                 EIR_Hdr()
                 / EIR_Flags(flags=["general_disc_mode", "br_edr_not_supported"]),
                 EIR_Hdr() / EIR_CompleteList16BitServiceUUIDs(svc_uuids=[service]),
-                EIR_Hdr() / EIR_CompleteLocalName(local_name="SIMOLANERO"),
+                EIR_Hdr() / EIR_CompleteLocalName(local_name=device_name),
                 EIR_Hdr(type="appearance")
                 / EIR_Raw(data=appearance.to_bytes(2, byteorder="little")),
             ]
