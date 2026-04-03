@@ -1,0 +1,8 @@
+syscfg.defs:
+  ENABLE_BLERP_CMDS: 1
+
+syscfg.vals:
+  BSP_NRF5340_NET_ENABLE: 1
+  NRF5340_EMBED_NET_CORE: 1
+  NET_CORE_IMAGE_TARGET_NAME: "@apache-mynewt-nimble/targets/nordic_pca10095_net-blehci"
+  BLE_LL_MANUFACTURER_ID: 0x041

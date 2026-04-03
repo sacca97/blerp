@@ -23,6 +23,9 @@ syscfg.defs:
     BLE_LL_PRODUCT_ID:
         description: Product ID for the device.
         value: 0xb023 # Mx Master 3 (TODO: modify at runtime for better spoofing)
+    BTSHELL_HID_PROFILE:
+        description: HID profile to emulate (1=keyboard, 2=mouse)
+        value: 2
 
 syscfg.vals:
     CONSOLE_IMPLEMENTATION: full
@@ -61,9 +64,10 @@ syscfg.vals:
 
     BLE_ATT_PREFERRED_MTU: 23
 
-    BLE_SVC_BAS_BATTERY_LEVEL_NOTIFY_ENABLE: 1
     # BLE_SVC_DIS_MANUFACTURER_NAME_READ_PERM: 1    
     # BLE_SVC_DIS_MODEL_NUMBER_READ_PERM: 1      
     # Whether to save data to sys/config, or just keep it in RAM.
     BLE_STORE_CONFIG_PERSIST: 0
 
+    OS_SYSVIEW: 1
+    BLE_LL_SYSVIEW: 1

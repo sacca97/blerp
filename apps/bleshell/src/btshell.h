@@ -28,8 +28,6 @@
 #include "nimble/ble.h"
 #include "nimble/nimble_opt.h"
 #include "os/mynewt.h"
-#include "services/bas/ble_svc_bas.h"
-#include "services/dis/ble_svc_dis.h"
 #include "services/gap/ble_svc_gap.h"
 
 #if (MYNEWT_VAL(BLE_ISO_BROADCAST_SOURCE))
@@ -244,6 +242,13 @@ uint8_t btshell_get_default_own_addr_type(void);
 void gatt_svr_register_cb(struct ble_gatt_register_ctxt *ctxt, void *arg);
 int gatt_svr_init(void);
 void gatt_svr_print_svcs(void);
+void gatt_svr_on_subscribe(uint16_t conn_handle, uint16_t attr_handle, uint8_t cur_notify,uint8_t cur_indicate);
+int gatt_svr_send_hid_report(uint16_t conn_handle, const uint8_t *report,
+                             uint16_t report_len);
+int gatt_svr_send_mouse_report(uint16_t conn_handle, uint16_t buttons,
+                               int16_t dx, int16_t dy, int8_t wheel, int8_t pan);
+int gatt_svr_mouse_move(uint16_t conn_handle, int16_t dx, int16_t dy);
+int gatt_svr_mouse_click(uint16_t conn_handle, uint8_t button, uint16_t hold_ms);
 
 /** Misc. */
 void print_bytes(const uint8_t *bytes, int len);

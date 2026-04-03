@@ -1,0 +1,14 @@
+pkg.name: targets/nrf53_blecent
+pkg.type: target
+pkg.description: 
+pkg.author: 
+pkg.homepage: 
+
+pkg.cflags:
+    - "-Wno-error"
+    - "-Wno-unused-variable"
+    - "-Wno-unused-function"
+    - "-Wno-stringop-overread"
+    - "-Wno-maybe-uninitialized"
+    - "-Wno-unused-but-set-variable"
+    - "-Wno-return-type"

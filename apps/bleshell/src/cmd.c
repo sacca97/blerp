@@ -3896,6 +3896,20 @@ static const struct shell_cmd_help gatt_notify_help = {
 };
 
 /*****************************************************************************
+ * $run-demo                                                                *
+ *****************************************************************************/
+
+static const struct shell_param run_demo_params[] = {
+    {"conn", "connection handle, usage: =<UINT16> (optional: defaults to first active)"},
+    {NULL, NULL}};
+
+static const struct shell_cmd_help run_demo_help = {
+    .summary = "run HID mouse demo pattern",
+    .usage = NULL,
+    .params = run_demo_params,
+};
+
+/*****************************************************************************
  * $gatt-read                                                                *
  *****************************************************************************/
 
@@ -4933,6 +4947,13 @@ static const struct shell_cmd btshell_commands[] = {
         .sc_cmd_func = cmd_gatt_notify,
 #if MYNEWT_VAL(SHELL_CMD_HELP)
         .help = &gatt_notify_help,
+#endif
+    },
+    {
+        .sc_cmd = "run-demo",
+        .sc_cmd_func = cmd_run_demo,
+#if MYNEWT_VAL(SHELL_CMD_HELP)
+        .help = &run_demo_help,
 #endif
     },
     {

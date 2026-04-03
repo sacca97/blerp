@@ -1326,13 +1326,9 @@ int btshell_gap_event(struct ble_gap_event *event, void *arg)
 			rc = ble_gap_conn_find(event->connect.conn_handle, &desc);
 			assert(rc == 0);
 			btshell_conn_add(&desc);
-			rc = ble_svc_bas_battery_level_set(42);
-			if (rc != 0)
-			{
-				return rc;
-			}
 			/* Immediately start pairing as a Central */
 			if(desc.role == BLE_GAP_ROLE_MASTER){
+				printf("\nStart security\n");
 			    ble_gap_security_initiate(event->connect.conn_handle);
 			}
 		}
@@ -1516,6 +1512,7 @@ int btshell_gap_event(struct ble_gap_event *event, void *arg)
 			event->subscribe.conn_handle, event->subscribe.attr_handle,
 			event->subscribe.reason, event->subscribe.prev_notify, event->subscribe.cur_notify,
 			event->subscribe.prev_indicate, event->subscribe.cur_indicate);
+			gatt_svr_on_subscribe(event->subscribe.conn_handle, event->subscribe.attr_handle, event->subscribe.cur_notify, event->subscribe.cur_indicate);
 		return 0;
 
 	case BLE_GAP_EVENT_MTU:

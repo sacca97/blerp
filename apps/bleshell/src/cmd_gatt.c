@@ -353,6 +353,95 @@ cmd_gatt_notify(int argc, char **argv)
 }
 
 /*****************************************************************************
+ * $run-demo                                                                *
+ *****************************************************************************/
+
+static int
+cmd_resolve_conn_handle(uint16_t *out_conn_handle)
+{
+    uint16_t conn_handle;
+    int rc;
+
+    conn_handle = parse_arg_uint16("conn", &rc);
+    if (rc == 0) {
+        *out_conn_handle = conn_handle;
+        return 0;
+    }
+
+    if (rc != ENOENT) {
+        return rc;
+    }
+
+    if (btshell_num_conns < 1) {
+        return ENOENT;
+    }
+
+    *out_conn_handle = btshell_conns[0].handle;
+    return 0;
+}
+
+int
+cmd_run_demo(int argc, char **argv)
+{
+    uint16_t conn_handle;
+    int rc;
+    int i;
+
+    const int16_t step = 100;
+    const uint16_t loops = 4;
+    const uint16_t init_delay_ms = 1000;
+    const uint16_t step_delay_ms = 500;
+
+    rc = parse_arg_init(argc - 1, argv + 1);
+    if (rc != 0) {
+        return rc;
+    }
+
+    rc = cmd_resolve_conn_handle(&conn_handle);
+    if (rc != 0) {
+        if (rc == ENOENT) {
+            console_printf("no active connection (or invalid 'conn' parameter)\n");
+        } else {
+            console_printf("invalid 'conn' parameter\n");
+        }
+        return rc;
+    }
+
+    os_time_delay(os_time_ms_to_ticks32(init_delay_ms));
+    for (i = 0; i < loops; i++) {
+        rc = gatt_svr_mouse_move(conn_handle, step, 0);
+        if (rc != 0) {
+            console_printf("mouse demo failed at step 1; rc=%d\n", rc);
+            return rc;
+        }
+        os_time_delay(os_time_ms_to_ticks32(step_delay_ms));
+
+        rc = gatt_svr_mouse_move(conn_handle, 0, step);
+        if (rc != 0) {
+            console_printf("mouse demo failed at step 2; rc=%d\n", rc);
+            return rc;
+        }
+        os_time_delay(os_time_ms_to_ticks32(step_delay_ms));
+
+        rc = gatt_svr_mouse_move(conn_handle, -step, 0);
+        if (rc != 0) {
+            console_printf("mouse demo failed at step 3; rc=%d\n", rc);
+            return rc;
+        }
+        os_time_delay(os_time_ms_to_ticks32(step_delay_ms));
+
+        rc = gatt_svr_mouse_move(conn_handle, 0, -step);
+        if (rc != 0) {
+            console_printf("mouse demo failed at step 4; rc=%d\n", rc);
+            return rc;
+        }
+        os_time_delay(os_time_ms_to_ticks32(step_delay_ms));
+    }
+
+    return rc;
+}
+
+/*****************************************************************************
  * $gatt-read                                                                *
  *****************************************************************************/
 

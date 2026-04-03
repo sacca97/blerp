@@ -1,0 +1,6 @@
+target.app: "@mcuboot/boot/mynewt"
+target.bsp: "@apache-mynewt-core/hw/bsp/nordic_pca10095_net"
+target.build_profile: optimized
+
+syscfg.vals:
+  BOOTUTIL_OVERWRITE_ONLY: 1
